@@ -107,22 +107,30 @@ function loginRequired(req, res, next) {
   if (!req.user) {
     return res.status(401).render("unauthenticated");
   } else {
-    var email = req.user.email
-      db.query('SELECT cid from SnickrUser where email=?', email, function(err, results, fields) {
-        if (!results[0].cid) {
-          db.query('INSERT INTO SnickrUser(name, email, phoneno, nickname, joindate, lastlogin) VALUES (?,?,?,?,?,?)',
+    console.log(req.user.profile.firstName);
+      db.query('SELECT uid from SnickrUser where uid=?', req.user.id, function(err, results, fields) {
+        if (!results[0]) {
+          db.query('INSERT INTO SnickrUser(uid, name, email, nickname, joindate, lastlogin) VALUES (?,?,?,?,?,?)',
           [
-            req.user.firstName+' '+req.user.lastName,
-            req.user.email,
-            req.user.phoneno,
-            req.user.nickname,
-            Date.now(),
-            Date.now(),
+            req.user.id,
+            req.user.profile.firstName+' '+req.user.profile.lastName,
+            req.user.profile.email,
+            req.user.profile.secondEmail,
+            new Date(req.user.created).toISOString().slice(0, 19).replace('T', ' '),
+            new Date(req.user.lastLogin).toISOString().slice(0, 19).replace('T', ' ')
           ],
-         function(err, results, fields) {});
+         function(err, results, fields) {
+           if(err) {
+             console.log(err);
+           }
+         });
        } else {
-         db.query('UPDATE SnickrUser SET lastlogindate = ? WHERE cid = ?', [Date.now(), results[0].cid],
-         function(err, results, fields){});
+         db.query('UPDATE SnickrUser SET lastlogin = ? WHERE uid = ?', [new Date(req.user.lastLogin).toISOString().slice(0, 19).replace('T', ' '), req.user.id],
+         function(err, results, fields){
+           if(err) {
+             console.log(err);
+           }
+         });
        }
      });
   }

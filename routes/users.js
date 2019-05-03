@@ -9,5 +9,8 @@ router.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
+router.get("/callback", (req, res) => {
+  
+});
 
 module.exports = router;
