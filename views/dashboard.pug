@@ -5,14 +5,19 @@ block variables
 
 block content
   h2.text-center Dashboard
-
+  .formcontainer
+    form(action='/dashboard/addworkspace', method='POST')
+      p
+        | Workspace Name: 
+        input(type='text', name='workspace_name', value='')
+      input(type='submit', value='Submit')
   .row
     .offset-sm-2.col-sm-8
-      .jumbotron.text-center.
-        Welcome to your Workspaces, #{user.profile.firstName}.
-        pre #{JSON.stringify(workspaceList)}
-    table
-      for ws in workspaceList
-        tr
-          td
-            a(href="/workspace/"+ws.wid) #{ws.wname}
+      .jumbotron.text-center
+        | Welcome to your Workspaces, #{user.profile.firstName}
+        
+        table
+          for ws in workspaceList
+            tr
+              td
+                a(href="/workspace/"+ws.wid) #{ws.wname}
