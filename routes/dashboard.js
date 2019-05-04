@@ -15,8 +15,7 @@ router.post("/addworkspace", (req, res) => {
 
 function addWorkspace(w_name, uid, res) {
     global.db.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
-        console.log('here!');
+        if (err) throw err;
         connection.beginTransaction(function (err) {
             if (err) { throw err; }
             connection.query('Insert into Workspace(wname, wcreatorid, wtimestamp) values (?, ?, now())',
@@ -26,8 +25,6 @@ function addWorkspace(w_name, uid, res) {
                             throw err;
                         });
                     }
-
-                    console.log('success!');
                     connection.query('Insert into WorkspaceUser values(LAST_INSERT_ID(), ?, ?, now())', [uid, 'ADMINI'],
                         function (err, result) {
                             if (err) {
