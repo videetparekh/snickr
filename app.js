@@ -107,7 +107,6 @@ function loginRequired(req, res, next) {
   if (!req.user) {
     return res.status(401).render("unauthenticated");
   } else {
-    console.log(req.user.profile.firstName);
       db.query('SELECT uid from SnickrUser where uid=?', req.user.id, function(err, results, fields) {
         if (!results[0]) {
           db.query('INSERT INTO SnickrUser(uid, name, email, nickname, joindate, lastlogin) VALUES (?,?,?,?,?,?)',

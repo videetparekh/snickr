@@ -9,4 +9,10 @@ block content
   .row
     .offset-sm-2.col-sm-8
       .jumbotron.text-center.
-        Welcome to your dashboard page, #{user.profile.firstName}.
+        Welcome to your Workspaces, #{user.profile.firstName}.
+        pre #{JSON.stringify(workspaceList)}
+    table
+      for ws in workspaceList
+        tr
+          td
+            a(href="/workspace/"+ws.wid) #{ws.wname}
