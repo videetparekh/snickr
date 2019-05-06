@@ -11,6 +11,7 @@ var ExpressOIDC = require("@okta/oidc-middleware").ExpressOIDC;
 const dashboardRouter = require("./routes/dashboard");
 const publicRouter = require("./routes/public");
 const usersRouter = require("./routes/users");
+const workspaceRouter = require("./routes/workspace");
 
 var app = express();
 
@@ -80,6 +81,7 @@ app.use((req, res, next) => {
 app.use('/', publicRouter);
 app.use('/dashboard', loginRequired, dashboardRouter);
 app.use('/users', usersRouter);
+app.use('/workspace', workspaceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

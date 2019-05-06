@@ -6,11 +6,12 @@ block variables
 block content
   h2.text-center Dashboard
   .formcontainer
-    form(action='/dashboard/addworkspace', method='POST')
       p
-        | Workspace Name: 
-        input(type='text', name='workspace_name', value='')
-      input(type='submit', value='Submit')
+          form(method='POST' action='/dashboard/addworkspace')
+            div.form-group
+              label(for='name') Workspace Name:
+              input#name.form-control(type='text', name='workspace_name', value='')
+            input(type='submit', value='Submit')
   .row
     .offset-sm-2.col-sm-8
       .jumbotron.text-center
@@ -20,4 +21,4 @@ block content
           for ws in workspaceList
             tr
               td
-                a(href="/workspace/"+ws.wid) #{ws.wname}
+                a(href="/workspace/?workspace="+ws.wid) #{ws.wname}
