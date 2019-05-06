@@ -7,59 +7,62 @@ const router = express.Router();
 router.get("/", (req, res) => {
     var wid = req.query.workspace;
     var cid = req.query.channel;
-    console.log(wid);
-    // Change try-catch logic later
+    var uid = req.user.id;
     if(cid === undefined) {
-        getChannels(wid).then(val_list=>res.render("workspace", { "channelList": val_list }));
+        getChannels(wid, uid).then(val_list=>res.render("workspace", { "channelList": val_list }));
     }
+        // else render communication page
 });
 
 router.post("/addchannel", (req, res) => {
-    addChannel(req.body.channel_name, req.body.channel_type, req.query.workspace, req.user.id, res);
+    addChannel(req.body.channel_name, req.body.channel_type, req.query.workspace, req.user.id)
+    .then(values=>res.render("workspace", { "channelList": values }));
 });
 
-
-// TODO Fix the functionality
-// function addChannel(w_name, wid, uid, res) {
-//     global.db.getConnection(function (err, connection) {
-//         if (err) throw err;
-//         connection.beginTransaction(function (err) {
-//             if (err) { throw err; }
-//             connection.query('Insert into Channel(cname, creatorid, wtimestamp) values (?, ?, now())',
-//                 [w_name, uid], function (err, result) {
-//                     if (err) {
-//                         connection.rollback(function () {
-//                             throw err;
-//                         });
-//                     }
-//                     connection.query('Insert into WorkspaceUser values(LAST_INSERT_ID(), ?, ?, now())', [uid, 'ADMINI'],
-//                         function (err, result) {
-//                             if (err) {
-//                                 console.log(err)
-//                                 connection.rollback(function () {
-//                                     throw err;
-//                                 });
-//                             }
-//                             connection.commit(function (err) {
-//                                 if (err) {
-//                                     connection.rollback(function () {
-//                                         throw err;
-//                                     });
-//                                 }
-//                             });
-//                             connection.release()
-//                             getChannels(wid, res);
-//
-//                         });
-//                 });
-//         });
-//     });
-// }
-
-async function getChannels(wid) {
+async function addChannel(c_name, c_type, wid, uid) {
     return new Promise((resolve, reject)=>{
-        query = global.db.query(`SELECT c.wid, c.cid, cname , ctype, ccreatorid, ctimestamp, w.wname from Channel c join Workspace w
-        on c.wid = w.wid where c.wid = ?`, wid, function (err, results, fields) {
+        global.db.getConnection(function (err, connection) {
+            if (err) throw err;
+            connection.beginTransaction(function (err) {
+                if (err) { throw err; }
+                connection.query('Insert into Channel(cname, wid, ctype, ccreatorid, ctimestamp) values (?, ?, ?, ?, now())',
+                    [c_name, wid, c_type, uid], function (err, result) {
+                        if (err) {
+                            connection.rollback(function () {
+                                throw err;
+                            });
+                        }
+                        connection.query('Insert into ChannelUser values(LAST_INSERT_ID(), ?, ?, now())', [uid, 'ADMIN'],
+                            function (err, result) {
+                                if (err) {
+                                    console.log(err)
+                                    connection.rollback(function () {
+                                        throw err;
+                                    });
+                                }
+                                connection.commit(function (err) {
+                                    if (err) {
+                                        connection.rollback(function () {
+                                            throw err;
+                                        });
+                                    }
+                                });
+                                connection.release()
+                                if(err)
+                                    reject(err);
+                                getChannels(wid, uid).then(value=>resolve(value));
+
+                            });
+                    });
+            });
+        });
+    });
+}
+
+async function getChannels(wid, uid) {
+    return new Promise((resolve, reject)=>{
+        query = global.db.query(`SELECT c.wid, c.cid, cname , ctype, ccreatorid, ctimestamp, w.wname from ChannelUser cuser join Channel c join Workspace w
+        on cuser.cid=c.cid and c.wid = w.wid where c.wid = ? and cuser.uid = ?`, [wid, uid], function (err, results, fields) {
             if(err)
                 reject(err);
             console.log(results);

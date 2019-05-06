@@ -28,7 +28,7 @@ async function addWorkspace(w_name, uid) {
                                 throw err;
                             });
                         }
-                        connection.query('Insert into WorkspaceUser values(LAST_INSERT_ID(), ?, ?, now())', [uid, 'ADMINI'],
+                        connection.query('Insert into WorkspaceUser values(LAST_INSERT_ID(), ?, ?, now())', [uid, 'ADMIN'],
                             function (err, result) {
                                 if (err) {
                                     console.log(err)

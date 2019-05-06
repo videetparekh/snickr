@@ -1,10 +1,10 @@
 extends layout
 
 block variables
-  - var title = "Dashboard"
+  - var title = "Channels"
 
 block content
-  h2.text-center Dashboard
+  h2.text-center Channels
   .formcontainer
       p
           form(method='POST' action='/workspace/addchannel/?workspace='+channelList[0].wid)
@@ -22,13 +22,7 @@ block content
               input#channel_type.form-control(type='radio', name='channel_type', value='direct') 
               | Direct
             input(type='submit', value='Submit')
-            //- | Channel Name: 
-            //- input(type='text', name='channel_name', value='')
-            //- | Channel Type:
-            //- input(type='radio', name='channel_type', value='public') Public
-            //- input(type='radio', name='channel_type', value='private') Private
-            //- input(type='radio', name='channel_type', value='direct') Direct
-            //- input(type='submit', value='Submit')
+
   .row
     .offset-sm-2.col-sm-8
       .jumbotron.text-center
@@ -38,4 +32,4 @@ block content
           for ch in channelList
             tr
               td
-                a(href="/workspace/?workspace="+ch.wid+"&channel="+ch.wid) #{ch.cname}
+                a(href="/workspace/?workspace="+ch.wid+"&channel="+ch.cid) #{ch.cname}
