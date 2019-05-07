@@ -7,10 +7,17 @@ block content
   h2.text-center     
   p
     table
+      tr
+        td.
+              message
+        td.
+              Workspace Name
+        td. 
+              Channel Name
       for msg in message
         tr
           td.
-              #{msg.content} :      
+              #{msg.content}     
           td.
               #{msg.wname}
           td.
