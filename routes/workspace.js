@@ -10,8 +10,11 @@ router.get("/", (req, res) => {
     var uid = req.user.id;
     if(cid === undefined) {
         getChannels(wid, uid).then(val_list=>res.render("workspace", { "channelList": val_list }));
+    } else {
+        // Refactor into different route
+        getMessages(cid).then(val_list=>res.render("chat", { "messageList": val_list }));
     }
-        // else render communication page
+
 });
 
 router.post("/addchannel", (req, res) => {
@@ -65,9 +68,11 @@ async function getChannels(wid, uid) {
         on cuser.cid=c.cid and c.wid = w.wid where c.wid = ? and cuser.uid = ?`, [wid, uid], function (err, results, fields) {
             if(err)
                 reject(err);
-            console.log(results);
-            val_list = JSON.parse(JSON.stringify(results));
-            resolve(val_list);
+                val_list = []
+                if(typeof results!=='undefined'){
+                    val_list = JSON.parse(JSON.stringify(results));
+                }
+                resolve(val_list);
         });
 
     });

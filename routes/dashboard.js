@@ -61,8 +61,11 @@ async function getWorkspaces(uid) {
     on wuser.wid = w.wid where wuser.uid = ?`, uid, function (err, results, fields) {
             if(err)
                 reject(err);
-            val_list = JSON.parse(JSON.stringify(results));
-            resolve(val_list);
+                val_list = []
+                if(typeof results!=='undefined'){
+                    val_list = JSON.parse(JSON.stringify(results));
+                }
+                resolve(val_list);
         });
 
     });

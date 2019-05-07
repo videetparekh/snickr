@@ -1,0 +1,23 @@
+extends layout
+
+block variables
+  - var title = "Chat"
+
+block content
+  h2.text-center #{messageList[0].cname}        
+    table
+      for msg in messageList
+        tr
+          td
+            p #{msg.name}
+          td
+            p #{msg.content}
+            
+
+    .formcontainer
+        p
+            form(method='POST' action='/chat/channel='+messageList[0].cid)
+              div.form-group
+                label(for='message') Chat:
+                input#message.form-control(type='text', name='message')
+              input(type='submit', value='Submit')
