@@ -9,7 +9,10 @@ router.get("/", (req, res) => {
     var cid = req.query.channel;
     var uid = req.user.id;
     if(cid === undefined) {
-        getChannels(wid, uid).then(val_list=>res.render("workspace", { "channelList": val_list }));
+        getChannels(wid, uid).then(getWorkspaceDetails(wid)).then(val_list=>res.render("workspace", {
+            "channelList": val_list,
+            "workspaceDetails": workspace_details
+        }));
     }
 
 });
@@ -70,6 +73,22 @@ async function getChannels(wid, uid) {
                     val_list = JSON.parse(JSON.stringify(results));
                 }
                 resolve(val_list);
+        });
+
+    });
+}
+
+async function getWorkspaceDetails(wid) {
+    return new Promise((resolve, reject)=>{
+        query = global.db.query(`SELECT * from Workspace w
+        where w.wid = ?`, wid, function (err, results, fields) {
+            if(err)
+                reject(err);
+                workspace_details = []
+                if(typeof results!=='undefined'){
+                    workspace_details = JSON.parse(JSON.stringify(results));
+                }
+                resolve(workspace_details);
         });
 
     });

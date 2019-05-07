@@ -6,21 +6,27 @@ const router = express.Router();
 // Log a user out
 router.get("/", (req, res) => {
     var cid = req.query.channel;
-    getMessages(cid).then(val_list=>res.render("chat", { "messageList": val_list }));
+    getMessages(cid).then(getChannelDetails(cid)).then(val_list=>res.render("chat", {
+        "messageList"   : val_list,
+        "channelDetails": channel_details
+    }));
 });
 
 // Change url (easy to confuse with the GET method)
-router.post("/", (req, res) => {
+router.post("/sendMessage", (req, res) => {
     var cid = req.query.channel;
     var msg = req.body.message;
     var uid = req.user.id;
     sendMessage(cid, uid, msg);
-    getMessages(cid).then(val_list=>res.render("chat", { "messageList": val_list }));
+    getMessages(cid).then(getChannelDetails(cid)).then(val_list=>res.render("chat", {
+        "messageList"   : val_list,
+        "channelDetails": channel_details
+    }));
 });
 
 async function getMessages(cid) {
     return new Promise((resolve, reject)=>{
-        query = global.db.query(`SELECT m.*, c.cname, u.name from Message m join Channel c join SnickrUser u on m.cid = c.cid
+        query = global.db.query(`SELECT m.*, u.name from Message m join Channel c join SnickrUser u on m.cid = c.cid
             and m.uid = u.uid where m.cid=?`, cid, function (err, results, fields) {
             if(err)
                 reject(err);
@@ -41,6 +47,22 @@ async function sendMessage(cid, uid, msg) {
                 reject(err);
             resolve();
         });
+    });
+}
+
+async function getChannelDetails(cid) {
+    return new Promise((resolve, reject)=>{
+        query = global.db.query(`SELECT * from Channel c
+        where c.cid = ?`, cid, function (err, results, fields) {
+            if(err)
+                reject(err);
+                channel_details = []
+                if(typeof results!=='undefined'){
+                    channel_details = JSON.parse(JSON.stringify(results));
+                }
+                resolve(channel_details);
+        });
+
     });
 }
 

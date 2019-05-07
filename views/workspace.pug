@@ -7,7 +7,7 @@ block content
   h2.text-center Channels
   .formcontainer
       p
-          form(method='POST' action='/workspace/addchannel/?workspace='+channelList[0].wid)
+          form(method='POST' action='/workspace/addchannel/?workspace='+workspaceDetails[0].wid)
             div.form-group
               label(for='name') Channel Name:
               input#name.form-control(type='text', name='channel_name')
@@ -26,7 +26,7 @@ block content
   .row
     .offset-sm-2.col-sm-8
       .jumbotron.text-center
-        | Welcome to Workspace #{channelList[0].wname}, #{user.profile.firstName}
+        | Welcome to Workspace #{workspaceDetails[0].wname}, #{user.profile.firstName}
         
         table
           for ch in channelList
