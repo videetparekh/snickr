@@ -1,0 +1,17 @@
+extends layout
+
+block variables
+  - var title = "Search"
+
+block content
+  h2.text-center     
+  p
+    table
+      for msg in message
+        tr
+          td.
+              #{msg.content} :      
+          td.
+              #{msg.wname}
+          td.
+              #{msg.cname}
