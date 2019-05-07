@@ -5,13 +5,14 @@ block variables
 
 block content
   h2.text-center #{channelDetails[0].cname}        
+  p
     table
       for msg in messageList
         tr
-          td
-            p #{msg.name}
-          td
-            p #{msg.content}
+          td.
+              #{msg.name} :      
+          td.
+              #{msg.content}
             
 
     .formcontainer
