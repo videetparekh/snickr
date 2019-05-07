@@ -10,9 +10,6 @@ router.get("/", (req, res) => {
     var uid = req.user.id;
     if(cid === undefined) {
         getChannels(wid, uid).then(val_list=>res.render("workspace", { "channelList": val_list }));
-    } else {
-        // Refactor into different route
-        getMessages(cid).then(val_list=>res.render("chat", { "messageList": val_list }));
     }
 
 });

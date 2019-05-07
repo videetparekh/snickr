@@ -12,6 +12,7 @@ const dashboardRouter = require("./routes/dashboard");
 const publicRouter = require("./routes/public");
 const usersRouter = require("./routes/users");
 const workspaceRouter = require("./routes/workspace");
+const chatRouter = require("./routes/chat");
 
 var app = express();
 
@@ -82,6 +83,7 @@ app.use('/', publicRouter);
 app.use('/dashboard', loginRequired, dashboardRouter);
 app.use('/users', usersRouter);
 app.use('/workspace', workspaceRouter);
+app.use('/chat', chatRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
