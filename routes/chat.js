@@ -97,9 +97,20 @@ async function inviteUserToChannel(invited_user, channel) {
     });
 }
 
-async function checkForSentInvitation(cid) {
+async function checkInvitationForDirectChannel(cid) {
     new Promise((resolve, reject) => {
-        query = global.db.query(`Select * from ChannelInvitation ci where ci.cid = ?`, cid,function(err, results, fields) {
+        query = global.db.query(`Select * from ChannelInvitation ci where ci.cid = ?
+            and (ci.cistatus=='Accepted' or ci.status='Pending')`, cid,function(err, results, fields) {
+            var sendInvite = !(typeof results !== 'undefined');
+            resolve(sendInvite);
+        });
+    });
+}
+
+async function checkForSentInvitation(cid, user_id) {
+    new Promise((resolve, reject) => {
+        query = global.db.query(`Select * from ChannelInvitation ci where ci.cid = ? and ci.uid = ?
+            and (ci.cistatus=='Accepted' or ci.status='Pending')`, [cid, user_id],function(err, results, fields) {
             var sendInvite = !(typeof results !== 'undefined');
             resolve(sendInvite);
         });
@@ -117,7 +128,7 @@ async function checkWorkspaceUser(invited_user, channel) {
                 reject(err);
                 if(typeof results!=='undefined'){
                     if(channel[0].c_type == 'direct') {
-                        checkForSentInvitation(channel)
+                        checkInvitationForDirectChannel(channel)
                         .then(sendInvite=>new function() {
                             if(sendInvite) {
                                 inviteUserToChannel(invited_user, channel);
@@ -125,7 +136,13 @@ async function checkWorkspaceUser(invited_user, channel) {
                         })
                         .then(value=>resolve(value));
                     } else {
-                        inviteUserToChannel(invited_user, channel).then(value=>resolve(value));
+                        checkForSentInvitation(channel)
+                        .then(sendInvite=>new function() {
+                            if(sendInvite) {
+                                inviteUserToChannel(invited_user, channel);
+                            }
+                        })
+                        .then(value=>resolve(value));
                     }
                 }
         });
