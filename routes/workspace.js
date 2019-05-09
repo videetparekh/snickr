@@ -6,27 +6,27 @@ const router = express.Router();
 // Log a user out
 router.get("/", (req, res) => {
     var wid = req.query.workspace;
-    console.log(wid);
-    var cid = req.query.channel;
     var uid = req.user.id;
-    if(cid === undefined) {
-        getChannels(wid, uid).then(val_list=>getWorkspaceDetails(wid)).then(workspace_details=>res.render("workspace", {
-            "channelList": val_list,
-            "workspaceDetails": workspace_details
-        }));
-    }
-
+    getChannels(wid, uid).then(val_list=>getWorkspaceDetails(wid)).then(workspace_details=>res.render("workspace", {
+        "channelList": val_list,
+        "workspaceDetails": workspace_details
+    }));
 });
 
 router.post("/addchannel", (req, res) => {
     addChannel(req.body.channel_name, req.body.channel_type, req.query.workspace, req.user.id)
-    .then(new_channel=>addAdminToChannel(new_channel))
-    .then(value=>getChannels(req.query.workspace, req.user.id))
+    .then(new_channel=>updateChannelUser(new_channel))
     .then(value=>getWorkspaceDetails(req.query.workspace))
     .then(workspace_details=>res.render("workspace", {
         "channelList": val_list,
         "workspaceDetails": workspace_details
     }));
+});
+
+router.post("/sendinvite", (req, res) => {
+    var email = req.body.user_email;
+    var wid   = req.query.workspace;
+    inviteUserToWorkspace(wid, email).then(res.redirect("/workspace/?workspace="+wid));
 });
 
 async function addChannel(c_name, c_type, wid, uid) {
@@ -69,7 +69,7 @@ async function addChannel(c_name, c_type, wid, uid) {
     });
 }
 
-async function addAdminToChannel(new_channel) {
+async function updateChannelUser(new_channel) {
     console.log(new_channel);
     return new Promise((resolve, reject)=>{
         global.db.query('Insert into ChannelUser(cid, uid, cauth, cutimestamp) values (?, ?, ?, now())',
@@ -84,7 +84,7 @@ async function addUsersToChannel(new_channel) {
     return new Promise((resolve, reject)=>{
         if(new_channel[0].c_type = 'public') {
             global.db.query(`INSERT INTO channeluser(uid, cid, cauth, ctimestamp) select uid, ?, ?, now()
-            from workspaceuser where wid = ? and uid != ?;`, [new_channel[0].cid, 'MEMBER', new_channel[0].wid, new_channel[0].uid],
+            from workspaceuser where wid = ? and uid != ?`, [new_channel[0].cid, 'MEMBER', new_channel[0].wid, new_channel[0].uid],
             function (err, result) {resolve();});
         } else {resolve();}
     });
@@ -103,6 +103,17 @@ async function getChannels(wid, uid) {
                 resolve(val_list);
         });
 
+    });
+}
+
+async function inviteUserToWorkspace(wid, email) {
+    console.log(wid);
+    console.log(email);
+    return new Promise((resolve, reject) => {
+        query = global.db.query(`Insert into WorkspaceInvitation(uid, wid, witimestamp, wistatus, wistatuschange)
+        Select u.uid, ?, now(), ?, now() from SnickrUser u where u.email = ?`, [wid, "Pending", email], function(err, results, fields) {
+            resolve();
+        });
     });
 }
 

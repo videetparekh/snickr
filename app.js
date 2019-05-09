@@ -14,6 +14,7 @@ const usersRouter = require("./routes/users");
 const workspaceRouter = require("./routes/workspace");
 const chatRouter = require("./routes/chat");
 const searchRouter = require("./routes/search")
+
 var app = express();
 
 var oktaClient = new okta.Client({
@@ -85,6 +86,7 @@ app.use('/users', usersRouter);
 app.use('/workspace', workspaceRouter);
 app.use('/chat', chatRouter);
 app.use('/search', searchRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
