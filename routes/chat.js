@@ -1,5 +1,4 @@
-const express = require("express");
-
+const express   = require("express");
 
 const router = express.Router();
 
@@ -13,7 +12,7 @@ router.get("/", (req, res) => {
 });
 
 // Change url (easy to confuse with the GET method)
-router.post("/sendMessage", (req, res) => {
+router.post("/sendmessage", (req, res) => {
     var cid = req.query.channel;
     var msg = req.body.message;
     var uid = req.user.id;
@@ -22,6 +21,14 @@ router.post("/sendMessage", (req, res) => {
         "messageList"   : val_list,
         "channelDetails": channel_details
     }));
+});
+
+router.post("/sendinvite", (req, res) => {
+    var cid     = req.query.channel;
+    var email   = req.body.user_email;
+    getChannelDetails(cid)
+    .then(channel_details=>getUser(email).then(inv_user_details=>checkWorkspaceUser(inv_user_details, channel_details)))
+    .then(value=>res.redirect("/chat/?channel="+cid));
 });
 
 async function getMessages(cid) {
@@ -63,6 +70,65 @@ async function getChannelDetails(cid) {
                 resolve(channel_details);
         });
 
+    });
+}
+
+async function getUser(email) {
+    return new Promise((resolve, reject)=>{
+        query = global.db.query(`SELECT * from SnickrUser u
+        where u.email = ?`, email, function (err, results, fields) {
+            if(err)
+                reject(err);
+                invited_user_details = [];
+                if(typeof results!=='undefined'){
+                    invited_user_details = JSON.parse(JSON.stringify(results));
+                }
+                resolve(invited_user_details);
+        });
+    });
+}
+
+async function inviteUserToChannel(invited_user, channel) {
+    return new Promise((resolve, reject) => {
+        query = global.db.query(`Insert into ChannelInvitation(uid, cid, citimestamp, cistatus, cistatuschange)
+        Values (?, ?, now(), ?, now())`, [invited_user[0].uid, channel[0].cid, "Pending"], function(err, results, fields) {
+            resolve();
+        });
+    });
+}
+
+async function checkForSentInvitation(cid) {
+    new Promise((resolve, reject) => {
+        query = global.db.query(`Select * from ChannelInvitation ci where ci.cid = ?`, cid,function(err, results, fields) {
+            var sendInvite = !(typeof results !== 'undefined');
+            resolve(sendInvite);
+        });
+    });
+}
+
+async function checkWorkspaceUser(invited_user, channel) {
+    if (invited_user[0] === undefined) {
+        return "Invitation cannot be sent.";
+    }
+    return new Promise((resolve, reject)=>{
+        query = global.db.query(`SELECT * from WorkspaceUser wu
+        where wu.wid = ? and uid = ?`, [channel[0].wid, invited_user[0].uid], function (err, results, fields) {
+            if(err)
+                reject(err);
+                if(typeof results!=='undefined'){
+                    if(channel[0].c_type == 'direct') {
+                        checkForSentInvitation(channel)
+                        .then(sendInvite=>new function() {
+                            if(sendInvite) {
+                                inviteUserToChannel(invited_user, channel);
+                            }
+                        })
+                        .then(value=>resolve(value));
+                    } else {
+                        inviteUserToChannel(invited_user, channel).then(value=>resolve(value));
+                    }
+                }
+        });
     });
 }
 
