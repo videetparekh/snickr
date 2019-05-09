@@ -11,6 +11,14 @@ router.get("/", (req, res) => {
         "channelDetails": channel_details
     }));
 });
+router.all("/load", (req, res) => {
+    var cid = 6;
+    console.log(cid)
+    getMessages(cid).then(getChannelDetails(cid)).then(val_list=>res.render("load", {
+        "messageList"   : val_list,
+        "channelDetails": channel_details
+    }));
+});
 
 // Change url (easy to confuse with the GET method)
 router.post("/sendMessage", (req, res) => {
@@ -18,10 +26,6 @@ router.post("/sendMessage", (req, res) => {
     var msg = req.body.message;
     var uid = req.user.id;
     sendMessage(cid, uid, msg);
-    getMessages(cid).then(getChannelDetails(cid)).then(val_list=>res.render("chat", {
-        "messageList"   : val_list,
-        "channelDetails": channel_details
-    }));
 });
 
 async function getMessages(cid) {
