@@ -6,7 +6,7 @@ const router = express.Router();
 // Log a user out
 router.get("/", (req, res) => {
     var cid = req.query.channel;
-    getMessages(cid).then(getChannelDetails(cid)).then(val_list=>res.render("chat", {
+    getMessages(cid).then(val_list=>getChannelDetails(cid)).then(channel_details=>res.render("chat", {
         "messageList"   : val_list,
         "channelDetails": channel_details
     }));
@@ -18,7 +18,7 @@ router.post("/sendMessage", (req, res) => {
     var msg = req.body.message;
     var uid = req.user.id;
     sendMessage(cid, uid, msg);
-    getMessages(cid).then(getChannelDetails(cid)).then(val_list=>res.render("chat", {
+    getMessages(cid).then(val_list=>getChannelDetails(cid)).then(channel_details=>res.render("chat", {
         "messageList"   : val_list,
         "channelDetails": channel_details
     }));
@@ -30,7 +30,7 @@ async function getMessages(cid) {
             and m.uid = u.uid where m.cid=?`, cid, function (err, results, fields) {
             if(err)
                 reject(err);
-            val_list = []
+            val_list = [];
             if(typeof results!=='undefined'){
                 val_list = JSON.parse(JSON.stringify(results));
             }
@@ -56,7 +56,7 @@ async function getChannelDetails(cid) {
         where c.cid = ?`, cid, function (err, results, fields) {
             if(err)
                 reject(err);
-                channel_details = []
+                channel_details = [];
                 if(typeof results!=='undefined'){
                     channel_details = JSON.parse(JSON.stringify(results));
                 }

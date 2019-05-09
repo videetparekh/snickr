@@ -41,8 +41,8 @@ const oidc = new ExpressOIDC({
 var db = mysql.createPool({
   connectionLimit : 100,
   host            : 'localhost',
-  user            : 'root',
-  password        : 'passwd',
+  user            : 'snickr-daemon',
+  password        : 'snickrdb2019',
   database        : 'snickr'
 });
 
