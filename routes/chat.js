@@ -127,7 +127,7 @@ async function checkWorkspaceUser(invited_user, channel) {
             if(err)
                 reject(err);
                 if(typeof results!=='undefined'){
-                    if(channel[0].c_type == 'direct') {
+                    if(channel[0].ctype == 'direct') {
                         checkInvitationForDirectChannel(channel)
                         .then(sendInvite=>new function() {
                             if(sendInvite) {

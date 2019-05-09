@@ -76,12 +76,15 @@ async function updateChannelUser(new_channel) {
 }
 
 async function addUsersToChannel(new_channel) {
-    console.log(new_channel);
     return new Promise((resolve, reject)=>{
-        if(new_channel[0].c_type = 'public') {
-            global.db.query(`INSERT INTO ChannelUser(uid, cid, cauth, ctimestamp) select uid, ?, ?, now()
-            from WorkspaceUser where wid = ? and uid != ?`, [new_channel[0].cid, 'MEMBER', new_channel[0].wid, new_channel[0].uid],
-            function (err, result) {resolve();});
+        if(new_channel[0].ctype = 'public') {
+            global.db.query(`INSERT INTO ChannelUser(uid, cid, cauth, cutimestamp) select uid, ?, ?, now()
+            from WorkspaceUser where wid = ? and uid != ?`, [new_channel[0].cid, 'MEMBER', new_channel[0].wid, new_channel[0].ccreatorid],
+            function (err, result) {
+                console.log(err);
+                console.log(result);
+                resolve();
+            });
         } else {resolve();}
     });
 }
