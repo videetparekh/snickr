@@ -21,7 +21,8 @@ html(lang="en")
         if user == undefined
           a.p-2.text-dark(href="/users/login") Log In / Register
         else
-          a.p-2.text-dark(href="/dashboard") Dashboard
+          a.p-2.text-dark(href="/dashboard") Dashboard          
+          a.p-2.text-dark(href="/invitations") Invitations
           a.p-2.text-dark(href="/users/logout") Logout
     .container
       block content

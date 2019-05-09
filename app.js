@@ -14,6 +14,7 @@ const usersRouter = require("./routes/users");
 const workspaceRouter = require("./routes/workspace");
 const chatRouter = require("./routes/chat");
 const searchRouter = require("./routes/search")
+const invitationRouter = require('./routes/invitations')
 
 var app = express();
 
@@ -42,8 +43,8 @@ const oidc = new ExpressOIDC({
 var db = mysql.createPool({
   connectionLimit : 100,
   host            : 'localhost',
-  user            : 'snickr-daemon',
-  password        : 'snickrdb2019',
+  user            : 'root',
+  password        : 'passwd',
   database        : 'snickr'
 });
 
@@ -86,6 +87,7 @@ app.use('/users', usersRouter);
 app.use('/workspace', workspaceRouter);
 app.use('/chat', chatRouter);
 app.use('/search', searchRouter);
+app.use('/invitations', invitationRouter);
 
 
 // catch 404 and forward to error handler
