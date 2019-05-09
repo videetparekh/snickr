@@ -6,19 +6,59 @@ block variables
 block content
   h2.text-center #{channelDetails[0].cname}        
   p
-    table
+    div.chat-container#chatwindow
       for msg in messageList
-        tr
-          td.
-              #{msg.name} :      
-          td.
-              #{msg.content}
-            
-
+        div.message-box
+          p.headline
+            strong  #{msg.name}:
+          p
+            | #{msg.content}
     .formcontainer
         p
-            form(method='POST' action='/chat/sendMessage/?channel='+channelDetails[0].cid)
+            form(id="send-message")
               div.form-group
                 label(for='message') Chat:
                 input#message.form-control(type='text', name='message')
-              input(type='submit', value='Submit')
+    script.
+      $('#send-message').on('submit',function (e) {
+              autoRefresh_div()
+              $.ajax({
+                type: 'post',
+                url: '/chat/sendMessage/?channel='+ #{channelDetails[0].cid},
+                data: $('#send-message').serialize(),
+                success: function () {
+                 console.log("message has been sent!");
+                }
+              });
+          e.preventDefault();
+        });
+
+    script.
+      function autoRefresh_div() {
+        $("#chatwindow").load("load", {'cid': #{channelDetails[0].cid} });
+        const messages = document.getElementById('chatwindow');
+        console.log(message.scrollTop)
+        message.scrollTop = message.clientHeight;
+      }
+      setInterval(autoRefresh_div, 1000);
+    
+    style.
+      .message-box{
+        border-radius: 5px;
+        padding: 2px;
+        margin-bottom:2px;
+      }
+      .headline{
+        margin-bottom:2px;
+        font-size:18px
+      }
+      #chatwindow{
+        overflow-y: auto;
+      }
+      .formcontainer {
+        position:fixed;
+        left:0px;
+        bottom:0px;
+        height:80px;
+        width:100%;
+      }
