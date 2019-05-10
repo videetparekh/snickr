@@ -10,14 +10,6 @@ router.get("/", (req, res) => {
         "channelDetails": channel_details
     }));
 });
-router.all("/load", (req, res) => {
-    var cid = 6;
-    console.log(cid)
-    getMessages(cid).then(getChannelDetails(cid)).then(val_list=>res.render("load", {
-        "messageList"   : val_list,
-        "channelDetails": channel_details
-    }));
-});
 
 // Change url (easy to confuse with the GET method)
 router.post("/sendmessage", (req, res) => {
@@ -34,8 +26,8 @@ router.post("/sendmessage", (req, res) => {
 router.post("/sendinvite", (req, res) => {
     var cid     = req.query.channel;
     var email   = req.body.user_email;
-    getChannelDetails(cid)
-    .then(channel_details=>getUser(email).then(inv_user_details=>checkWorkspaceUser(inv_user_details, channel_details)))
+    Promise.all([getChannelDetails(cid), getUser(email)])
+    .then(results=>checkWorkspaceUser(results[0], results[1]))
     .then(value=>res.redirect("/chat/?channel="+cid));
 });
 
@@ -96,63 +88,52 @@ async function getUser(email) {
     });
 }
 
-async function inviteUserToChannel(invited_user, channel) {
-    return new Promise((resolve, reject) => {
-        query = global.db.query(`Insert into ChannelInvitation(uid, cid, citimestamp, cistatus, cistatuschange)
-        Values (?, ?, now(), ?, now())`, [invited_user[0].uid, channel[0].cid, "Pending"], function(err, results, fields) {
-            resolve();
+async function inviteUserToChannel(channel, invited_user) {
+    if (channel[0].ctype == 'direct') {
+        return new Promise((resolve, reject) => {
+            query = global.db.query(`Insert into ChannelInvitation(uid, cid, citimestamp, cistatus, cistatuschange)
+            select ?, ?, now(), ?, now() from dual
+            where not exists (Select cid from ChannelInvitation where cid = ?
+            and (cistatus='Accepted' or cistatus='Pending'))`, [invited_user[0].uid, channel[0].cid, "Pending", channel[0].cid], function(err, results, fields) {
+                if (err){
+                    console.log(err);
+                    reject(err);
+                }
+                resolve();
+            });
         });
-    });
+    } else {
+        return new Promise((resolve, reject) => {
+            query = global.db.query(`Insert into ChannelInvitation(uid, cid, citimestamp, cistatus, cistatuschange)
+            select ?, ?, now(), ?, now() from dual
+            where not exists (Select uid, cid from ChannelInvitation where uid = ? and cid = ?
+            and (cistatus='Accepted' or cistatus='Pending'))`, [invited_user[0].uid, channel[0].cid, "Pending", invited_user[0].uid, channel[0].cid], function(err, results, fields) {
+                if (err) {
+                    console.log(err)
+                    reject(err);
+                }
+                resolve();
+            });
+        });
+    }
 }
 
-async function checkInvitationForDirectChannel(cid) {
-    new Promise((resolve, reject) => {
-        query = global.db.query(`Select * from ChannelInvitation ci where ci.cid = ?
-            and (ci.cistatus=='Accepted' or ci.status='Pending')`, cid,function(err, results, fields) {
-            var sendInvite = !(typeof results !== 'undefined');
-            resolve(sendInvite);
-        });
-    });
-}
-
-async function checkForSentInvitation(cid, user_id) {
-    new Promise((resolve, reject) => {
-        query = global.db.query(`Select * from ChannelInvitation ci where ci.cid = ? and ci.uid = ?
-            and (ci.cistatus=='Accepted' or ci.status='Pending')`, [cid, user_id],function(err, results, fields) {
-            var sendInvite = !(typeof results !== 'undefined');
-            resolve(sendInvite);
-        });
-    });
-}
-
-async function checkWorkspaceUser(invited_user, channel) {
+async function checkWorkspaceUser(channel, invited_user) {
     if (invited_user[0] === undefined) {
-        return "Invitation cannot be sent.";
+        console.log("Invitation cannot be sent.");
+        return;
     }
     return new Promise((resolve, reject)=>{
+        // console.log(invited_user[0]['uid'], channel[0]['cid']);
         query = global.db.query(`SELECT * from WorkspaceUser wu
         where wu.wid = ? and uid = ?`, [channel[0].wid, invited_user[0].uid], function (err, results, fields) {
-            if(err)
+            if(err){
                 reject(err);
-                if(typeof results!=='undefined'){
-                    if(channel[0].ctype == 'direct') {
-                        checkInvitationForDirectChannel(channel)
-                        .then(sendInvite=>new function() {
-                            if(sendInvite) {
-                                inviteUserToChannel(invited_user, channel);
-                            }
-                        })
-                        .then(value=>resolve(value));
-                    } else {
-                        checkForSentInvitation(channel)
-                        .then(sendInvite=>new function() {
-                            if(sendInvite) {
-                                inviteUserToChannel(invited_user, channel);
-                            }
-                        })
-                        .then(value=>resolve(value));
-                    }
-                }
+                console.log(err);
+            }
+            // Verify if user exists in Workspace
+            if(typeof results!=='undefined')
+                inviteUserToChannel(channel, invited_user).then(value=>resolve(value));
         });
     });
 }

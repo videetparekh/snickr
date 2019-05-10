@@ -77,7 +77,7 @@ async function updateChannelUser(new_channel) {
 
 async function addUsersToChannel(new_channel) {
     return new Promise((resolve, reject)=>{
-        if(new_channel[0].ctype = 'public') {
+        if(new_channel[0].ctype == 'public') {
             global.db.query(`INSERT INTO ChannelUser(uid, cid, cauth, cutimestamp) select uid, ?, ?, now()
             from WorkspaceUser where wid = ? and uid != ?`, [new_channel[0].cid, 'MEMBER', new_channel[0].wid, new_channel[0].ccreatorid],
             function (err, result) {
