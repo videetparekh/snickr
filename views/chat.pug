@@ -4,7 +4,16 @@ block variables
   - var title = "Chat"
 
 block content
-  h2.text-center #{channelDetails[0].cname}        
+  h2.text-center #{channelDetails[0].cname}
+  if (user.id == channelDetails[0].ccreatorid && (channelDetails[0].ctype == "direct" || channelDetails[0].ctype == "private"))
+      p
+          form(method='POST' action='/chat/sendinvite/?channel='+channelDetails[0].cid)
+            div.form-group
+              label(for='user_email') User Email:
+              input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email")
+            input(type='submit', value='Invite User to Channel')      
+
+          
   p
     div.chat-container#chatwindow
       for msg in messageList
@@ -15,7 +24,7 @@ block content
             | #{msg.content}
     .formcontainer
         p
-            form(id="send-message")
+            form(method='POST' action='/chat/sendmessage/?channel='+channelDetails[0].cid)
               div.form-group
                 label(for='message') Chat:
                 input#message.form-control(type='text', name='message')

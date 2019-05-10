@@ -1,0 +1,26 @@
+extends layout
+
+block variables
+  - var title = "Invitations"
+
+block content
+  h2.text-center Workspace Invitations
+  
+  .row
+    .offset-sm-2.col-sm-8
+      .jumbotron.text-center
+        | Pending Invitations    
+        table
+          for invite in winvites
+            tr
+              td
+                | #{invite.wname}
+              td
+                form(method='POST' action='/invitations/workspace/?workspace='+invite.wid)
+                  div.form-group
+                    input(type="radio", name="status", value="accept")
+                    |    accept    
+                    input(type="radio", name="status", value="reject")
+                    |    reject   
+                    input(type="submit", value="submit")
+              td
