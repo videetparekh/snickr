@@ -11,6 +11,71 @@ router.get("/", (req, res) => {
     });
 });
 
+router.post("/workspace", (req, res)=>{
+    var uid = req.user.id;
+    var wid = req.query.workspace;
+    var status;
+    if(req.body.status=="accept"){
+        status="Accepted";
+        service_invitation(status, wid, uid).then(values=>res.redirect("/invitations"));
+    }
+    else if(req.body.status=="reject"){
+        status="Rejected";
+        service_invitation(status, wid, uid).then(values=>res.redirect("/invitations"));
+    }
+    else
+        res.redirect("/invitations");
+    
+});
+
+async function service_invitation(status, wid, uid){
+    return new Promise((resolve, reject)=>{
+        global.db.getConnection(function (err, connection) {
+            if (err) throw err;
+            connection.beginTransaction(function (err) {
+                if (err) { throw err; }
+                connection.query(`update WorkspaceInvitation set wistatus=? where wid=? and uid=?`,
+                    [status, wid, uid], function (err, result) {
+                        if (err) {
+                            connection.rollback(function () {
+                                throw err;
+                            });
+                        }
+                        if(status=="Accepted"){
+                            connection.query(`insert into WorkspaceUser values(?, ?, 'normal', now())`,[wid, uid],
+                                function (err, result) {
+                                    if (err) {
+                                        console.log(err)
+                                        connection.rollback(function () {
+                                            throw err;
+                                        });
+                                    }
+                                    connection.commit(function (err) {
+                                        if (err) {
+                                            connection.rollback(function () {
+                                                throw err;
+                                            });
+                                        }
+                                    });
+                                    connection.release();
+                                    resolve(null);
+                                });
+                            }else{
+                                connection.commit(function (err) {
+                                    if (err) {
+                                        connection.rollback(function () {
+                                            throw err;
+                                        });
+                                    }
+                                });
+                                connection.release();
+                                resolve(null);
+                            }
+                    });
+            });
+        });
+    });
+}
 async function get_workspace_invitations(uid) {
     return new Promise((resolve, reject)=>{
         query = global.db.query(`select wid, wname from Workspace natural join WorkspaceInvitation \

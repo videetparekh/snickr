@@ -16,6 +16,11 @@ block content
               td
                 | #{invite.wname}
               td
-                input(type="button", value='accept') 
+                form(method='POST' action='/invitations/workspace/?workspace='+invite.wid)
+                  div.form-group
+                    input(type="radio", name="status", value="accept")
+                    |    accept    
+                    input(type="radio", name="status", value="reject")
+                    |    reject   
+                    input(type="submit", value="submit")
               td
-                input(type="button", value='reject')
