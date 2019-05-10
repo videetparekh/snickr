@@ -10,6 +10,13 @@ router.get("/", (req, res) => {
         "channelDetails": channel_details
     }));
 });
+router.post("/load", (req, res) => {
+    cid=req.body.cid;
+    Promise.all([getMessages(cid),getChannelDetails(cid)]).then(([val_list, channel_details])=>res.render("load", {
+        "messageList"   : val_list,
+        "channelDetails": channel_details
+    }));
+});
 
 // Change url (easy to confuse with the GET method)
 router.post("/sendmessage", (req, res) => {
@@ -17,10 +24,9 @@ router.post("/sendmessage", (req, res) => {
     var msg = req.body.message;
     var uid = req.user.id;
     sendMessage(cid, uid, msg);
-    getMessages(cid).then(val_list=>getChannelDetails(cid)).then(channel_details=>res.render("chat", {
-        "messageList"   : val_list,
-        "channelDetails": channel_details
-    }));
+    Promise.all([getMessages(cid),getChannelDetails(cid)]).then(([val_list, channel_details])=>{
+        res.send({success: true});
+    });
 });
 
 router.post("/sendinvite", (req, res) => {
@@ -34,7 +40,7 @@ router.post("/sendinvite", (req, res) => {
 async function getMessages(cid) {
     return new Promise((resolve, reject)=>{
         query = global.db.query(`SELECT m.*, u.name from Message m join Channel c join SnickrUser u on m.cid = c.cid
-            and m.uid = u.uid where m.cid=?`, cid, function (err, results, fields) {
+            and m.uid = u.uid where m.cid=? order by mtimestamp asc`, cid, function (err, results, fields) {
             if(err)
                 reject(err);
             val_list = [];

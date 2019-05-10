@@ -25,27 +25,32 @@ block content
             | #{msg.content}
     .formcontainer
         p
-            form(method='POST' action='/chat/sendmessage/?channel='+channelDetails[0].cid)
+            form#send-message()
               div.form-group
                 label(for='message') Chat:
                 input#message.form-control(type='text', name='message')
     script.
       $('#send-message').on('submit',function (e) {
-              autoRefresh_div()
+          e.preventDefault();
               $.ajax({
                 type: 'post',
                 url: '/chat/sendMessage/?channel='+ #{channelDetails[0].cid},
                 data: $('#send-message').serialize(),
-                success: function () {
+                success: function (result) {
                  console.log("message has been sent!");
+                 document.getElementById("send-message").reset();
+                 autoRefresh_div();
+
+                var scrollingElement = (document.scrollingElement || document.body);
+                scrollingElement.scrollTop = scrollingElement.scrollHeight;
+
                 }
               });
-          e.preventDefault();
         });
 
     script.
       function autoRefresh_div() {
-        $("#chatwindow").load("load", {'cid': #{channelDetails[0].cid} });
+        $("#chatwindow").load("/chat/load", {'cid': #{channelDetails[0].cid} });
         const messages = document.getElementById('chatwindow');
         console.log(message.scrollTop)
         message.scrollTop = message.clientHeight;
