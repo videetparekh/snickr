@@ -9,7 +9,7 @@ block content
   .row
     .offset-sm-2.col-sm-8
       .jumbotron.text-center
-        | Pending Invitations    
+        | Pending Workspace Invitations    
         table
           for invite in winvites
             tr
@@ -17,6 +17,22 @@ block content
                 | #{invite.wname}
               td
                 form(method='POST' action='/invitations/workspace/?workspace='+invite.wid)
+                  div.form-group
+                    input(type="radio", name="status", value="accept")
+                    |    accept    
+                    input(type="radio", name="status", value="reject")
+                    |    reject   
+                    input(type="submit", value="submit")
+              td
+
+        | Pending Channel Invitations    
+        table
+          for invite in cinvites
+            tr
+              td
+                | #{invite.cname}
+              td
+                form(method='POST' action='/invitations/channel/?channel='+invite.cid)
                   div.form-group
                     input(type="radio", name="status", value="accept")
                     |    accept    

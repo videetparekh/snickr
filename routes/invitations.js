@@ -17,18 +17,35 @@ router.post("/workspace", (req, res)=>{
     var status;
     if(req.body.status=="accept"){
         status="Accepted";
-        service_invitation(status, wid, uid).then(values=>res.redirect("/invitations"));
+        service_workspace_invitation(status, wid, uid).then(values=>res.redirect("/invitations"));
     }
     else if(req.body.status=="reject"){
         status="Rejected";
-        service_invitation(status, wid, uid).then(values=>res.redirect("/invitations"));
+        service_workspace_invitation(status, wid, uid).then(values=>res.redirect("/invitations"));
     }
     else
         res.redirect("/invitations");
     
 });
 
-async function service_invitation(status, wid, uid){
+router.post("/channel", (req, res)=>{
+    var uid = req.user.id;
+    var cid = req.query.channel;
+    var status;
+    if(req.body.status=="accept"){
+        status="Accepted";
+        service_channel_invitation(status, cid, uid).then(values=>res.redirect("/invitations"));
+    }
+    else if(req.body.status=="reject"){
+        status="Rejected";
+        service_channel_invitation(status, cid, uid).then(values=>res.redirect("/invitations"));
+    }
+    else
+        res.redirect("/invitations");
+    
+});
+
+async function service_workspace_invitation(status, wid, uid){
     return new Promise((resolve, reject)=>{
         global.db.getConnection(function (err, connection) {
             if (err) throw err;
@@ -42,7 +59,7 @@ async function service_invitation(status, wid, uid){
                             });
                         }
                         if(status=="Accepted"){
-                            connection.query(`insert into WorkspaceUser values(?, ?, 'normal', now())`,[wid, uid],
+                            connection.query(`insert into WorkspaceUser values(?, ?, 'MEMBER', now())`,[wid, uid],
                                 function (err, result) {
                                     if (err) {
                                         console.log(err)
@@ -76,6 +93,56 @@ async function service_invitation(status, wid, uid){
         });
     });
 }
+
+async function service_channel_invitation(status, cid, uid){
+    return new Promise((resolve, reject)=>{
+        global.db.getConnection(function (err, connection) {
+            if (err) throw err;
+            connection.beginTransaction(function (err) {
+                if (err) { throw err; }
+                connection.query(`update ChannelInvitation set cistatus=? where cid=? and uid=?`,
+                    [status, cid, uid], function (err, result) {
+                        if (err) {
+                            connection.rollback(function () {
+                                throw err;
+                            });
+                        }
+                        if(status=="Accepted"){
+                            connection.query(`insert into ChannelUser values(?, ?, 'MEMBER', now())`,[cid, uid],
+                                function (err, result) {
+                                    if (err) {
+                                        console.log(err)
+                                        connection.rollback(function () {
+                                            throw err;
+                                        });
+                                    }
+                                    connection.commit(function (err) {
+                                        if (err) {
+                                            connection.rollback(function () {
+                                                throw err;
+                                            });
+                                        }
+                                    });
+                                    connection.release();
+                                    resolve(null);
+                                });
+                            }else{
+                                connection.commit(function (err) {
+                                    if (err) {
+                                        connection.rollback(function () {
+                                            throw err;
+                                        });
+                                    }
+                                });
+                                connection.release();
+                                resolve(null);
+                            }
+                    });
+            });
+        });
+    });
+}
+
 async function get_workspace_invitations(uid) {
     return new Promise((resolve, reject)=>{
         query = global.db.query(`select wid, wname from Workspace natural join WorkspaceInvitation \
