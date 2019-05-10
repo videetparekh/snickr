@@ -12,10 +12,11 @@ html(lang="en")
   body
     div.top-bar.d-flex.flex-column.flex-md-row.align-items-center.p-3.px-md-4.mb-3.bg-white.border-bottom.box-shadow
       h5.my-0.mr-md-auto.font-weight-normal
-            a(href="/", title="Expresso") Snickr
+        a(href='/')    
+            img.image(src='/resources/snickr-logo.png' alt="Snickr")
       nav.my-2.my-md-0.mr-md-3.d-flex
         form(method='POST' action='/search')
-            div.form-group
+            div.form-group.search-bar
                 input.form-control(type='text', name='search_message', placeholder="Search")
       a.p-2.text-dark(href="/", title="Home") Home
 

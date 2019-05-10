@@ -43,8 +43,8 @@ const oidc = new ExpressOIDC({
 var db = mysql.createPool({
   connectionLimit : 100,
   host            : 'localhost',
-  user            : 'root',
-  password        : 'passwd',
+  user            : 'snickr-daemon',
+  password        : 'snickrdb2019',
   database        : 'snickr'
 });
 
@@ -84,10 +84,11 @@ app.use((req, res, next) => {
 app.use('/', publicRouter);
 app.use('/dashboard', loginRequired, dashboardRouter);
 app.use('/users', usersRouter);
-app.use('/workspace', workspaceRouter);
-app.use('/chat', chatRouter);
-app.use('/search', searchRouter);
-app.use('/invitations', invitationRouter);
+app.use('/workspace', loginRequired, workspaceRouter);
+app.use('/chat', loginRequired, chatRouter);
+app.use('/search', loginRequired, searchRouter);
+app.use('/invitations', loginRequired, invitationRouter);
+app.use('/resources', express.static(path.resolve(__dirname, './resources')))
 
 
 // catch 404 and forward to error handler

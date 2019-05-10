@@ -27,3 +27,25 @@ h2 {
 .container {
   padding-top: 2em;
 }
+
+img {
+    height: 100px;
+    vertical-align: bottom;
+}
+
+div.form-group.search-bar {
+    height: 20px;
+}
+
+div.add-forms {
+    width: 100%;
+    padding-right: 50px;
+    padding-left: 50px;
+    margin-right: 50px;
+    margin-left: 50px;
+    margin-bottom: 20px;
+}
+
+table.display-items {
+    
+}

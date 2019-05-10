@@ -5,30 +5,36 @@ block variables
 
 block content
   h2.text-center Channels
-  
-  if user.id == workspaceDetails[0].wcreatorid
-      p
-          form(method='POST' action='/workspace/sendinvite/?workspace='+workspaceDetails[0].wid)
-            div.form-group
-              label(for='user_email') User Email:
-              input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email")
-            input(type='submit', value='Invite User to Workspace')      
-  p
-      form(method='POST' action='/workspace/addchannel/?workspace='+workspaceDetails[0].wid)
-        div.form-group
-          label(for='name') Channel Name:
-          input#name.form-control(type='text', name='channel_name')
-        div.form-group
-          label(for='channel_type') Channel Type:
-          
-          
-          input#channel_type.form-control(type='radio', name='channel_type', value='public') 
-          | Public
-          input#channel_type.form-control(type='radio', name='channel_type', value='private') 
-          | Private
-          input#channel_type.form-control(type='radio', name='channel_type', value='direct') 
-          | Direct
-        input(type='submit', value='Submit')
+  table
+      tr
+          th
+              h4 Invite User to Workspace
+          th
+              h4 Add New Channel
+      tr
+          td
+             if user.id == workspaceDetails[0].wcreatorid
+                 div.add-forms
+                     form(method='POST' action='/workspace/sendinvite/?workspace='+workspaceDetails[0].wid)
+                       div.form-group
+                         label(for='user_email') User Email:
+                         input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email")
+                       input(type='submit', value='Invite User to Workspace')      
+          td
+              div.add-forms
+                  form(method='POST' action='/workspace/addchannel/?workspace='+workspaceDetails[0].wid)
+                    div.form-group
+                      label(for='name') Channel Name:
+                      input#name.form-control(type='text', name='channel_name')
+                    div.form-group
+                      label(for='channel_type') Channel Type:          
+                      input#channel_type.form-control(type='radio', name='channel_type', value='public') 
+                      | Public
+                      input#channel_type.form-control(type='radio', name='channel_type', value='private') 
+                      | Private
+                      input#channel_type.form-control(type='radio', name='channel_type', value='direct') 
+                      | Direct
+                    input(type='submit', value='Submit')
 
   .row
     .offset-sm-2.col-sm-8
