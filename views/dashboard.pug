@@ -20,7 +20,7 @@ block content
           form(method='POST' action='/dashboard/addworkspace')
             div.form-group
               label(for='name') Workspace Name:
-              input#name.form-control(type='text', name='workspace_name', placeholder='Enter workspace name')
+              input#name.form-control(type='text', name='workspace_name', placeholder='Enter workspace name' required)
             input(type='submit', value='Submit')
     .row
         .offset-sm-2.col-sm-8

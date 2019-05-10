@@ -6,7 +6,6 @@ block variables
 block content
     
     -function prettyDate(dateString){
-        //if it's already a date object and not a string you don't need this line:
         -var date = new Date(dateString);
         -var d = date.getDate();
         -var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
@@ -14,6 +13,8 @@ block content
         -var y = date.getFullYear();
         -return d+' '+m+' '+y;
     -}
+
+
     h2.text-center Channels
     table.form-table
         tr
@@ -25,11 +26,13 @@ block content
             td
                 if user.id == workspaceDetails[0].wcreatorid
                     div.add-forms
-                         form(method='POST' action='/workspace/sendinvite/?workspace='+workspaceDetails[0].wid)
+                        
+                         form#inviteuser()
                              div.form-group
                                  label(for='user_email') User Email:
-                                 input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email")
-                             input(type='submit', value='Invite User to Workspace')      
+                                 input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email" value='')
+                             input(type='submit', value='Invite User to Workspace')     
+ 
             td
                 div.add-forms
                     form(method='POST' action='/workspace/addchannel/?workspace='+workspaceDetails[0].wid)
@@ -38,11 +41,11 @@ block content
                                 td.form-cell
                                     div.form-group
                                       label(for='name') Channel Name:
-                                      input#name.form-control(type='text', name='channel_name')
+                                      input#name.form-control(type='text', name='channel_name' required)
                                     div.form-group
                                 td.form-cell
                                     label(for='channel_type') Channel Type:          
-                                    input#channel_type.form-control(type='radio', name='channel_type', value='public') 
+                                    input#channel_type.form-control(type='radio', name='channel_type', value='public' checked='checked') 
                                     | Public
                                     input#channel_type.form-control(type='radio', name='channel_type', value='private') 
                                     | Private
@@ -51,7 +54,24 @@ block content
                             tr(col-span=2)
                                 td
                                     input(type='submit', value='Submit')
-
+    script.
+      $('#inviteuser').on('submit',function (e) {
+          e.preventDefault();
+          var user_email = $('#user_email').val();
+          var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+          if (!emailReg.test(user_email) || user_email.length < 5) {
+              alert("Please enter a valid e-mail address");  
+              return false;  
+          } 
+          $.ajax({
+            type: 'post',
+            url: '/workspace/sendinvite/?workspace=' + #{workspaceDetails[0].wid},
+            data: $('#inviteuser').serialize(),
+            success: function () {
+             console.log("Validated!");
+            }
+          });
+      });
     .row
         .offset-sm-2.col-sm-8
             | Welcome to #{workspaceDetails[0].wname}, #{user.profile.firstName}
