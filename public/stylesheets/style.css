@@ -37,7 +37,7 @@ div.form-group.search-bar {
     height: 20px;
 }
 
-div.add-forms {
+.add-forms {
     width: 100%;
     padding-right: 50px;
     padding-left: 50px;
@@ -46,6 +46,23 @@ div.add-forms {
     margin-bottom: 20px;
 }
 
-table.display-items {
-    
+div.dashboard-form {
+    width: 40%;
+    padding-right: 50px;
+    padding-left: 50px;
+    margin-right: 50px;
+    margin-left: 50px;
+    margin-bottom: 20px;
+}
+
+.form-cell {
+    width: 50%;
+    padding-right: 50px;
+    padding-left: 50px;
+}
+
+.list-cell {
+    padding-left: 100px;
+    padding-right:100px;
+    padding-bottom: 10px;
 }

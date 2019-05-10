@@ -7,7 +7,7 @@ block content
   h2.text-center #{channelDetails[0].cname}
   if (user.id == channelDetails[0].ccreatorid && (channelDetails[0].ctype == "direct" || channelDetails[0].ctype == "private"))
       h4 Invite User to Channel
-      div.add-forms 
+      div.dashboard-form 
           form(method='POST' action='/chat/sendinvite/?channel='+channelDetails[0].cid)
             div.form-group
               label(for='user_email') User Email:

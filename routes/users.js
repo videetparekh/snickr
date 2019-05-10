@@ -10,7 +10,7 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/callback", (req, res) => {
-    db.query('SELECT uid from SnickrUser where uid=?', req.user.id, function(err, results, fields) {
+    global.db.query('SELECT uid from SnickrUser where uid=?', req.user.id, function(err, results, fields) {
       if (!results[0]) {
         db.query('INSERT INTO SnickrUser(uid, name, email, nickname, joindate, lastlogin) VALUES (?,?,?,?,?,?)',
         [
@@ -27,7 +27,7 @@ router.get("/callback", (req, res) => {
          }
        });
      } else {
-       db.query('UPDATE SnickrUser SET lastlogin = ? WHERE uid = ?', [new Date(req.user.lastLogin).toISOString().slice(0, 19).replace('T', ' '), req.user.id],
+       global.db.query('UPDATE SnickrUser SET lastlogin = ? WHERE uid = ?', [new Date(req.user.lastLogin).toISOString().slice(0, 19).replace('T', ' '), req.user.id],
        function(err, results, fields){
          if(err) {
            console.log(err);

@@ -4,22 +4,35 @@ block variables
   - var title = "Dashboard"
 
 block content
-  h2.text-center Dashboard
-  .formcontainer
-      h4 Add Workspace
-      div.add-forms
+    -function prettyDate(dateString){
+        //if it's already a date object and not a string you don't need this line:
+        -var date = new Date(dateString);
+        -var d = date.getDate();
+        -var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+        -var m = monthNames[date.getMonth()];
+        -var y = date.getFullYear();
+        -return d+' '+m+' '+y;
+    -}
+    h2.text-center Dashboard
+    .formcontainer
+        h4 Add Workspace
+        div.dashboard-form
           form(method='POST' action='/dashboard/addworkspace')
             div.form-group
               label(for='name') Workspace Name:
-              input#name.form-control(type='text', name='workspace_name', value='')
+              input#name.form-control(type='text', name='workspace_name', placeholder='Enter workspace name')
             input(type='submit', value='Submit')
-  .row
-    .offset-sm-2.col-sm-8
-      .jumbotron.text-center
-        | Welcome to your Workspaces, #{user.profile.firstName}
-        
-        table
-          for ws in workspaceList
-            tr
-              td
-                a(href="/workspace/?workspace="+ws.wid) #{ws.wname}
+    .row
+        .offset-sm-2.col-sm-8
+            | Welcome to your Workspaces, #{user.profile.firstName}
+            .jumbotron.text-center
+                table
+                    tr 
+                        th.list-cell Channel Name
+                        th.list-cell Created at
+                    for ws in workspaceList
+                        tr
+                          td.list-cell
+                            a(href="/workspace/?workspace="+ws.wid) #{ws.wname}
+                          td.list-cell
+                            | #{prettyDate(ws.wtimestamp)}
