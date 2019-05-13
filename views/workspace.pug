@@ -16,17 +16,18 @@ block content
 
 
     h2.text-center Channels
-    table.form-table
-        tr
-            th
-                h4.add-forms Invite User to Workspace
-            th
-                h4.add-forms Add New Channel
-            th
-                h4.add-forms Make User Admininistator
-        tr
-            td
-                if user.id == workspaceDetails[0].wcreatorid
+    if user.id == workspaceDetails[0].wcreatorid
+        table.form-table
+            tr
+                th
+                    h4.add-forms Invite User to Workspace
+                th
+                    h4.add-forms Add New Channel
+                th
+                    h4.add-forms Make User Admininistator
+            tr
+                td
+                
                     div.add-forms
                         
                          form#inviteuser()
@@ -35,35 +36,35 @@ block content
                                  input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email" value='')
                              input(type='submit', value='Invite User to Workspace')     
  
-            td
-                div.add-forms
-                    form(method='POST' action='/workspace/addchannel/?workspace='+workspaceDetails[0].wid)
-                        table
-                            tr
-                                td.form-cell
-                                    div.form-group
-                                      label(for='name') Channel Name:
-                                      input#name.form-control(type='text', name='channel_name' required)
-                                    div.form-group
-                                td.form-cell
-                                    label(for='channel_type') Channel Type:          
-                                    input#channel_type.form-control(type='radio', name='channel_type', value='public' checked='checked') 
-                                    | Public
-                                    input#channel_type.form-control(type='radio', name='channel_type', value='private') 
-                                    | Private
-                                    input#channel_type.form-control(type='radio', name='channel_type', value='direct') 
-                                    | Direct
-                            tr(col-span=2)
-                                td
-                                    input(type='submit', value='Submit')
-            td
-                div.dashboard-form
-                    form(action='/workspace/addAdmin/?workspace='+workspaceDetails[0].wid method='post')
-                        label(for='users') Make User Administrator
-                        select(name='userToAdmin' id='userToAdmin')
-                            each wu in userList
-                                option #{wu.email}
-                            input(type='submit' value='Submit')
+                td
+                    div.add-forms
+                        form(method='POST' action='/workspace/addchannel/?workspace='+workspaceDetails[0].wid)
+                            table
+                                tr
+                                    td.form-cell
+                                        div.form-group
+                                        label(for='name') Channel Name:
+                                        input#name.form-control(type='text', name='channel_name' required)
+                                        div.form-group
+                                    td.form-cell
+                                        label(for='channel_type') Channel Type:          
+                                        input#channel_type.form-control(type='radio', name='channel_type', value='public' checked='checked') 
+                                        | Public
+                                        input#channel_type.form-control(type='radio', name='channel_type', value='private') 
+                                        | Private
+                                        input#channel_type.form-control(type='radio', name='channel_type', value='direct') 
+                                        | Direct
+                                tr(col-span=2)
+                                    td
+                                        input(type='submit', value='Submit')
+                td
+                    div.dashboard-form
+                        form(action='/workspace/addAdmin/?workspace='+workspaceDetails[0].wid method='post')
+                            label(for='users') Make User Administrator
+                            select(name='userToAdmin' id='userToAdmin')
+                                each wu in userList
+                                    option #{wu.email}
+                                input(type='submit' value='Submit')
     script.
       $('#inviteuser').on('submit',function (e) {
           e.preventDefault();
