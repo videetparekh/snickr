@@ -9,6 +9,8 @@ block content
     table
       tr
         td.
+              User
+        td.
               message
         td.
               Workspace Name
@@ -17,8 +19,15 @@ block content
       for msg in message
         tr
           td.
+              #{msg.name}
+          td.
               #{msg.content}     
           td.
               #{msg.wname}
           td.
               #{msg.cname}
+    
+    style.
+      tr, td{
+        padding:15px
+      }

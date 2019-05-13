@@ -11,8 +11,8 @@ router.post("/", (req, res)=>{
 
 async function search(message, uid) {
     return new Promise((resolve, reject)=>{
-        query = global.db.query(`Select content, wname, cname from Workspace natural join\
-        WorkspaceUser natural join Channel natural join ChannelUser natural join Message where uid=? \
+        query = global.db.query(`Select content, wname, cname, name from Workspace natural join\
+        WorkspaceUser natural join SnickrUser natural join Channel natural join ChannelUser natural join Message where uid=? \
         and content like ? `, [uid, '%' + message + '%'], function (err, results, fields) {
             if(err)
                 reject(err);
