@@ -28,6 +28,7 @@ block content
                     data: $('#inviteuser').serialize(),
                     success: function () {
                      console.log("Validated!");
+                     document.getElementById("inviteuser").reset();
                     }
                   });
               });
