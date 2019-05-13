@@ -15,29 +15,30 @@ block content
               td
                   div.dashboard-form 
                       form#inviteuser()
-                        div.form-group()
-                          label(for='user_email') User Email:
-                          input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email")
-                        input(type='submit', value='Invite User to Channel')      
-                        script.
-                          $('#inviteuser').on('submit',function (e) {
-                              e.preventDefault();
-                              var user_email = $('#user_email').val();
-                              var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-                              if (!emailReg.test(user_email) || user_email.length < 5) {
-                                  alert("Please enter a valid e-mail address");  
-                                  return false;  
-                              } 
-                              $.ajax({
-                                type: 'post',
-                                url: '/chat/sendinvite/?channel='+ #{channelDetails[0].cid},
-                                data: $('#inviteuser').serialize(),
-                                success: function () {
-                                 console.log("Validated!");
-                                 document.getElementById("inviteuser").reset();
-                                }
+                          div.form-group()
+                              label(for='user_email') User Email:
+                              input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email")
+                          input(type='submit', value='Invite User to Channel')      
+                          script.
+                              $('#inviteuser').on('submit',function (e) {
+                                  e.preventDefault();
+                                  var user_email = $('#user_email').val();
+                                  var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+                                  if (!emailReg.test(user_email) || user_email.length < 5) {
+                                      alert("Please enter a valid e-mail address");  
+                                      return false;  
+                                  } 
+                                  $.ajax({
+                                    type: 'post',
+                                    url: '/chat/sendinvite/?channel='+ #{channelDetails[0].cid},
+                                    data: $('#inviteuser').serialize(),
+                                    success: function () {
+                                     console.log("Validated!");
+                                     document.getElementById("inviteuser").reset();
+                                    }
+                                  });
                               });
-                          });
+              
               td
                   div.dashboard-form
                       form(action='/chat/addAdmin/?channel='+channelDetails[0].cid method='post')
@@ -45,65 +46,65 @@ block content
                               each cu in userList
                                   option #{cu.email}
                               input(type='submit' value='Submit')
-      p
-    div.chat-container#chatwindow
+                                  
+  div.chat-container#chatwindow
       for msg in messageList
-        div.message-box
-          p.headline
-            strong  #{msg.name}:
-          p
-            | #{msg.content}
-    .formcontainer
-        p
-            form#send-message()
+          div.message-box
+              p.headline
+                  strong  #{msg.name}:
+              p
+                  | #{msg.content}
+  .formcontainer
+      p
+          form#send-message()
               div.form-group
-                label(for='message') Chat:
-                input#message.form-control(type='text', name='message')
-    script.
-      $('#send-message').on('submit',function (e) {
-          e.preventDefault();
-              $.ajax({
-                type: 'post',
-                url: '/chat/sendMessage/?channel='+ #{channelDetails[0].cid},
-                data: $('#send-message').serialize(),
-                success: function (result) {
-                 console.log("message has been sent!");
-                 document.getElementById("send-message").reset();
-                 autoRefresh_div();
+                  label(for='message') Chat:
+                  input#message.form-control(type='text', name='message')
+      script.
+          $('#send-message').on('submit',function (e) {
+              e.preventDefault();
+                  $.ajax({
+                    type: 'post',
+                    url: '/chat/sendMessage/?channel='+ #{channelDetails[0].cid},
+                    data: $('#send-message').serialize(),
+                    success: function (result) {
+                     console.log("message has been sent!");
+                     document.getElementById("send-message").reset();
+                     autoRefresh_div();
 
-                var scrollingElement = (document.scrollingElement || document.body);
-                scrollingElement.scrollTop = scrollingElement.scrollHeight;
+                    var scrollingElement = (document.scrollingElement || document.body);
+                    scrollingElement.scrollTop = scrollingElement.scrollHeight;
 
-                }
-              });
-        });
+                    }
+                  });
+            });
 
-    script.
-      function autoRefresh_div() {
-        $("#chatwindow").load("/chat/load", {'cid': #{channelDetails[0].cid} });
-        const messages = document.getElementById('chatwindow');
-        console.log(message.scrollTop)
-        message.scrollTop = message.clientHeight;
-      }
-      setInterval(autoRefresh_div, 1000);
+      script.
+          function autoRefresh_div() {
+            $("#chatwindow").load("/chat/load", {'cid': #{channelDetails[0].cid} });
+            const messages = document.getElementById('chatwindow');
+            console.log(message.scrollTop)
+            message.scrollTop = message.clientHeight;
+          }
+          setInterval(autoRefresh_div, 1000);
     
-    style.
-      .message-box{
-        border-radius: 5px;
-        padding: 2px;
-        margin-bottom:2px;
-      }
-      .headline{
-        margin-bottom:2px;
-        font-size:18px
-      }
-      #chatwindow{
-        overflow-y: auto;
-      }
-      .formcontainer {
-        position:fixed;
-        left:0px;
-        bottom:0px;
-        height:80px;
-        width:100%;
-      }
+      style.
+          .message-box{
+            border-radius: 5px;
+            padding: 2px;
+            margin-bottom:2px;
+          }
+          .headline{
+            margin-bottom:2px;
+            font-size:18px
+          }
+          #chatwindow{
+            overflow-y: auto;
+          }
+          .formcontainer {
+            position:fixed;
+            left:0px;
+            bottom:0px;
+            height:80px;
+            width:100%;
+          }
