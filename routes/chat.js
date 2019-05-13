@@ -5,11 +5,13 @@ const router = express.Router();
 // Log a user out
 router.get("/", (req, res) => {
     var cid = req.query.channel;
-    getMessages(cid).then(val_list=>getChannelDetails(cid)).then(channel_details=>res.render("chat", {
+    Promise.all([getMessages(cid),getChannelDetails(cid), getUserList(cid)]).then(([val_list, channel_details, user_list])=>res.render("chat", {
         "messageList"   : val_list,
-        "channelDetails": channel_details
+        "channelDetails": channel_details,
+        "userList"      : user_list
     }));
 });
+
 router.post("/load", (req, res) => {
     cid=req.body.cid;
     Promise.all([getMessages(cid),getChannelDetails(cid)]).then(([val_list, channel_details])=>res.render("load", {
@@ -18,13 +20,19 @@ router.post("/load", (req, res) => {
     }));
 });
 
+router.post("/addAdmin", (req, res) => {
+    var cid = req.query.channel;
+    var email = req.body.userToAdmin;
+    makeUserAdmin(cid, email).then(value=>res.redirect('/chat/?channel='+cid));
+});
+
 // Change url (easy to confuse with the GET method)
 router.post("/sendmessage", (req, res) => {
     var cid = req.query.channel;
     var msg = req.body.message;
     var uid = req.user.id;
     sendMessage(cid, uid, msg);
-    Promise.all([getMessages(cid),getChannelDetails(cid)]).then(([val_list, channel_details])=>{
+    Promise.all([getMessages(cid),getChannelDetails(cid), getUserList(cid, req.user.id)]).then(([val_list, channel_details, user_list])=>{
         res.send({success: true});
     });
 });
@@ -141,6 +149,36 @@ async function checkWorkspaceUser(channel, invited_user) {
             console.log(results);
             if(typeof results!=='undefined' && results.length!=0)
                 inviteUserToChannel(channel, invited_user).then(value=>resolve(value));
+        });
+    });
+}
+
+async function getUserList(cid) {
+    return new Promise((resolve, reject) => {
+        query = global.db.query(`SELECT cu.cid, u.uid, u.email from ChannelUser cu join SnickrUser u
+            on cu.uid = u.uid where cu.cid = ? and cu.cauth != 'ADMIN'`, cid, function (err, results, fields) {
+            if(err){
+                reject(err);
+                console.log(err);
+            }
+            user_list = [];
+            if(typeof results!=='undefined'){
+                user_list = JSON.parse(JSON.stringify(results));
+            }
+            resolve(user_list);
+        });
+    });
+}
+
+async function makeUserAdmin(cid, email) {
+    return new Promise((resolve, reject) => {
+        query = global.db.query(` UPDATE ChannelUser cu SET cu.cauth='ADMIN'
+        where cu.cid = ? and cu.uid = (SELECT uid from SnickrUser where email = ?)`, [cid, email], function (err, results, fields) {
+            if(err){
+                reject(err);
+                console.log(err);
+            }
+            resolve();
         });
     });
 }

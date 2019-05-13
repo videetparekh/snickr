@@ -7,9 +7,10 @@ const router = express.Router();
 router.get("/", (req, res) => {
     var wid = req.query.workspace;
     var uid = req.user.id;
-    getChannels(wid, uid).then(val_list=>getWorkspaceDetails(wid)).then(workspace_details=>res.render("workspace", {
-        "channelList": val_list,
-        "workspaceDetails": workspace_details
+    Promise.all([getChannels(wid, uid),getWorkspaceDetails(wid), getUserList(wid)]).then(([val_list, workspace_details, user_list])=>res.render("workspace", {
+        "channelList"       : val_list,
+        "workspaceDetails"  : workspace_details,
+        "userList"          : user_list
     }));
 });
 
@@ -17,6 +18,12 @@ router.post("/addchannel", (req, res) => {
     addChannel(req.body.channel_name, req.body.channel_type, req.query.workspace, req.user.id)
     .then(new_channel=>updateChannelUser(new_channel))
     .then(value=>res.redirect("/workspace/?workspace="+req.query.workspace));
+});
+
+router.post("/addAdmin", (req, res) => {
+    var wid = req.query.workspace;
+    var email = req.body.userToAdmin;
+    makeUserAdmin(wid, email).then(value=>res.redirect("/workspace/?workspace="+wid));
 });
 
 router.post("/sendinvite", (req, res) => {
@@ -127,6 +134,36 @@ async function getWorkspaceDetails(wid) {
                     workspace_details = JSON.parse(JSON.stringify(results));
                 }
                 resolve(workspace_details);
+        });
+    });
+}
+
+async function getUserList(wid) {
+    return new Promise((resolve, reject) => {
+        query = global.db.query(`SELECT wu.wid, u.uid, u.email from WorkspaceUser wu join SnickrUser u
+            on wu.uid = u.uid where wu.wid = ? and wu.wauth != 'ADMIN'`, wid, function (err, results, fields) {
+            if(err){
+                reject(err);
+                console.log(err);
+            }
+            user_list = [];
+            if(typeof results!=='undefined'){
+                user_list = JSON.parse(JSON.stringify(results));
+            }
+            resolve(user_list);
+        });
+    });
+}
+
+async function makeUserAdmin(wid, email) {
+    return new Promise((resolve, reject) => {
+        query = global.db.query(` UPDATE WorkspaceUser wu SET wu.wauth='ADMIN'
+        where wu.wid = ? and wu.uid = (SELECT uid from SnickrUser where email = ?)`, [wid, email], function (err, results, fields) {
+            if(err){
+                reject(err);
+                console.log(err);
+            }
+            resolve();
         });
     });
 }

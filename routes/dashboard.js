@@ -5,10 +5,11 @@ const router = express.Router();
 
 // Display the dashboard page
 router.get("/", (req, res) => {
-    const workspaces = [];
+    updateUser(req.user);
     getWorkspaces(req.user.id)
     .then(val_list=>res.render("dashboard", { "workspaceList": val_list }));
 });
+
 router.post("/addworkspace", (req, res) => {
     addWorkspace(req.body.workspace_name, req.user.id)
     .then(values=>res.render("dashboard", { "workspaceList": values }));
@@ -74,5 +75,34 @@ async function getWorkspaces(uid) {
 router.get("/test", (req, res) => {
     res.render("test");
 });
+
+async function updateUser(user) {
+    global.db.query('SELECT uid from SnickrUser where uid=?', user.id, function(err, results, fields) {
+      if (!results[0]) {
+        db.query('INSERT INTO SnickrUser(uid, name, email, nickname, joindate, lastlogin) VALUES (?,?,?,?,?,?)',
+        [
+          user.id,
+          user.profile.firstName+' '+user.profile.lastName,
+          user.profile.email,
+          user.profile.secondEmail,
+          new Date(user.created).toISOString().slice(0, 19).replace('T', ' '),
+          new Date(user.lastLogin).toISOString().slice(0, 19).replace('T', ' ')
+        ],
+       function(err, results, fields) {
+         if(err) {
+           console.log(err);
+         }
+       });
+     } else {
+       global.db.query('UPDATE SnickrUser SET lastlogin = ? WHERE uid = ?', [new Date(user.lastLogin).toISOString().slice(0, 19).replace('T', ' '), user.id],
+       function(err, results, fields){
+         if(err) {
+           console.log(err);
+         }
+       });
+     }
+   });
+
+}
 
 module.exports = router;

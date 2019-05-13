@@ -39,26 +39,26 @@ div.form-group.search-bar {
 
 .add-forms {
     width: 100%;
-    padding-right: 50px;
-    padding-left: 50px;
-    margin-right: 50px;
-    margin-left: 50px;
+    padding-right: 30px;
+    padding-left: 30px;
+    margin-right: 30px;
+    margin-left: 30px;
     margin-bottom: 20px;
 }
 
 div.dashboard-form {
-    width: 40%;
-    padding-right: 50px;
-    padding-left: 50px;
-    margin-right: 50px;
-    margin-left: 50px;
+    width: 100%;
+    padding-right: 30px;
+    padding-left: 30px;
+    margin-right: 30px;
+    margin-left: 30px;
     margin-bottom: 20px;
 }
 
 .form-cell {
     width: 50%;
-    padding-right: 50px;
-    padding-left: 50px;
+    padding-right: 30px;
+    padding-left: 30px;
 }
 
 .list-cell {

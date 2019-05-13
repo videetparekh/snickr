@@ -6,32 +6,45 @@ block variables
 block content
   h2.text-center #{channelDetails[0].cname}
   if (user.id == channelDetails[0].ccreatorid && (channelDetails[0].ctype == "direct" || channelDetails[0].ctype == "private"))
-      h4 Invite User to Channel
-      div.dashboard-form 
-          form#inviteuser()
-            div.form-group()
-              label(for='user_email') User Email:
-              input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email")
-            input(type='submit', value='Invite User to Channel')      
-            script.
-              $('#inviteuser').on('submit',function (e) {
-                  e.preventDefault();
-                  var user_email = $('#user_email').val();
-                  var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-                  if (!emailReg.test(user_email) || user_email.length < 5) {
-                      alert("Please enter a valid e-mail address");  
-                      return false;  
-                  } 
-                  $.ajax({
-                    type: 'post',
-                    url: '/chat/sendinvite/?channel='+ #{channelDetails[0].cid},
-                    data: $('#inviteuser').serialize(),
-                    success: function () {
-                     console.log("Validated!");
-                    }
-                  });
-              });
-          
+      table
+          tr
+              th Invite User to Channel
+              th Make User Administrator
+          tr
+              td
+                  div.dashboard-form 
+                      form#inviteuser()
+                        div.form-group()
+                          label(for='user_email') User Email:
+                          input#user_email.form-control(type='email', name='user_email', placeholder="Enter user email")
+                        input(type='submit', value='Invite User to Channel')      
+                        script.
+                          $('#inviteuser').on('submit',function (e) {
+                              e.preventDefault();
+                              var user_email = $('#user_email').val();
+                              var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+                              if (!emailReg.test(user_email) || user_email.length < 5) {
+                                  alert("Please enter a valid e-mail address");  
+                                  return false;  
+                              } 
+                              $.ajax({
+                                type: 'post',
+                                url: '/chat/sendinvite/?channel='+ #{channelDetails[0].cid},
+                                data: $('#inviteuser').serialize(),
+                                success: function () {
+                                 console.log("Validated!");
+                                }
+                              });
+                              $('user_email').val()='';
+                          });
+              td
+                  div.dashboard-form
+                      form(action='/chat/addAdmin/?channel='+channelDetails[0].cid method='post')
+                          select(name='userToAdmin' id='userToAdmin')
+                              each cu in userList
+                                  option #{cu.email}
+                              input(type='submit' value='Submit')
+    
   p
     div.chat-container#chatwindow
       for msg in messageList

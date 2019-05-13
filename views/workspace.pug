@@ -22,6 +22,8 @@ block content
                 h4.add-forms Invite User to Workspace
             th
                 h4.add-forms Add New Channel
+            th
+                h4.add-forms Make User Admininistator
         tr
             td
                 if user.id == workspaceDetails[0].wcreatorid
@@ -54,6 +56,14 @@ block content
                             tr(col-span=2)
                                 td
                                     input(type='submit', value='Submit')
+            td
+                div.dashboard-form
+                    form(action='/workspace/addAdmin/?workspace='+workspaceDetails[0].wid method='post')
+                        label(for='users') Make User Administrator
+                        select(name='userToAdmin' id='userToAdmin')
+                            each wu in userList
+                                option #{wu.email}
+                            input(type='submit' value='Submit')
     script.
       $('#inviteuser').on('submit',function (e) {
           e.preventDefault();
@@ -71,6 +81,7 @@ block content
              console.log("Validated!");
             }
           });
+          $('user_email').val()='';
       });
     .row
         .offset-sm-2.col-sm-8
