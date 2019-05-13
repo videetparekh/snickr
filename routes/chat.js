@@ -138,7 +138,8 @@ async function checkWorkspaceUser(channel, invited_user) {
                 console.log(err);
             }
             // Verify if user exists in Workspace
-            if(typeof results!=='undefined')
+            console.log(results);
+            if(typeof results!=='undefined' && results.length!=0)
                 inviteUserToChannel(channel, invited_user).then(value=>resolve(value));
         });
     });
