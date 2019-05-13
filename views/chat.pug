@@ -6,6 +6,7 @@ block variables
 block content
   h2.text-center #{channelDetails[0].cname}
   if (user.id == channelDetails[0].ccreatorid && (channelDetails[0].ctype == "direct" || channelDetails[0].ctype == "private"))
+      
       table
           tr
               th Invite User to Channel
@@ -33,9 +34,9 @@ block content
                                 data: $('#inviteuser').serialize(),
                                 success: function () {
                                  console.log("Validated!");
+                                 document.getElementById("inviteuser").reset();
                                 }
                               });
-                              $('user_email').val()='';
                           });
               td
                   div.dashboard-form
@@ -44,8 +45,7 @@ block content
                               each cu in userList
                                   option #{cu.email}
                               input(type='submit' value='Submit')
-    
-  p
+      p
     div.chat-container#chatwindow
       for msg in messageList
         div.message-box

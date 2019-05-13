@@ -42,7 +42,7 @@ router.post("/sendinvite", (req, res) => {
     var email   = req.body.user_email;
     Promise.all([getChannelDetails(cid), getUser(email)])
     .then(results=>checkWorkspaceUser(results[0], results[1]))
-    .then(value=>res.redirect("/chat/?channel="+cid));
+    .then(value=>res.send({success: true}));
 });
 
 async function getMessages(cid) {
@@ -146,9 +146,10 @@ async function checkWorkspaceUser(channel, invited_user) {
                 console.log(err);
             }
             // Verify if user exists in Workspace
-            console.log(results);
             if(typeof results!=='undefined' && results.length!=0)
                 inviteUserToChannel(channel, invited_user).then(value=>resolve(value));
+            else
+                resolve();
         });
     });
 }
